@@ -53,6 +53,23 @@ func searchFile(bill Bill) (bool, error) {
 	return true, nil
 }
 
+func updateFile(bill Bill) error {
+	conn, err := db()
+	if err != nil {
+		return err
+	}
+	//defer close missing
+
+	var data []Bill
+	query := `
+	update bills
+	set lastDate = ?
+	where id = ? 
+	`
+	// do the update
+	return nil
+}
+
 func updateReceipt() error {
 	bills, err := getBillToCheck()
 	if err != nil {
