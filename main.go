@@ -48,6 +48,11 @@ func getBillToCheck() (*[]Bill, error) {
 	return &data, nil
 }
 
+func searchFile(bill Bill) (bool, error) {
+	// not today
+	return true, nil
+}
+
 func updateReceipt() error {
 	bills, err := getBillToCheck()
 	if err != nil {
