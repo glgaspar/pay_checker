@@ -18,7 +18,23 @@ type Bill struct {
 
 
 func updateReceipt() error {
-	// do something
+	bills, err := getBillToCheck()
+	if err != nil {
+		return err
+	}
+
+	for b := 0; b < len(*bills); b++ {
+		file, err := searchFile((*bills)[b])
+		if err != nil {
+			return err
+		}
+		if file {
+			if err := updateFile((*bills)[b]); err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 }
 
