@@ -9,6 +9,14 @@ import (
 	"github.com/joho/godotenv"
 )
 
+type Bill struct {
+	Id     int       `json:"id" db:"id"`         // Bill Id
+	ExpDay int       `json:"expDay" db:"expDay"` // Expiration day
+	Date   time.Time `json:"date" db:"date"`     // Time of last payment
+	Path   string    `json:"path" db:"path"`     // Where to find the files
+}
+
+
 func updateReceipt() error {
 	// do something
 	return nil
