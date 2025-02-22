@@ -22,6 +22,31 @@ func db() (any, error) {
 	return conn, nil
 }
 
+func getBillToCheck() (*[]Bill, error) {
+	conn, err := db()
+	if err != nil {
+		return nil, err
+	}
+	//defer close missing
+
+	var data []Bill
+	query := `
+	select id, expDay lastDate 
+	from bills
+	where 
+	(
+		-- current month > month(lastDate)
+		-- and current year = year(lastDate)
+	)
+	or (
+		-- current month < month(lastDate)
+		-- and current year > year(lastDate)
+	)
+	or lastDate is null
+	`
+	// do the select
+	return &data, nil
+}
 
 func updateReceipt() error {
 	bills, err := getBillToCheck()
