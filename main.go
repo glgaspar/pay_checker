@@ -16,6 +16,12 @@ type Bill struct {
 	Path   string    `json:"path" db:"path"`     // Where to find the files
 }
 
+func db() (any, error) {
+	var conn any
+	// probably gonna use postgre
+	return conn, nil
+}
+
 
 func updateReceipt() error {
 	bills, err := getBillToCheck()
