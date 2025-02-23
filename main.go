@@ -117,14 +117,13 @@ func searchFile(bill *Bill) (bool, error) {
 	return false, nil
 }
 
-func updateFile(bill Bill) error {
+func updateFile(bill *Bill) error {
 	conn, err := db()
 	if err != nil {
 		return err
 	}
 	defer conn.Close()
 
-	var data []Bill
 	query := `
 	update bills
 	set lastDate = $1
@@ -145,6 +144,7 @@ func updateReceipt() error {
 
 	for b := range *bills {
 		log.Printf("checking payment file for: %s", (*bills)[b].Description)
+		file, err := searchFile(&(*bills)[b])
 		if err != nil {
 			return err
 		}
