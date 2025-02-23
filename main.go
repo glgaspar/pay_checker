@@ -49,18 +49,19 @@ func getBillToCheck() (*[]Bill, error) {
 
 	var data []Bill
 	query := `
-	select id, expDay lastDate 
+	select id, description, expDay, lastDate, path 
 	from bills
 	where 
 	(
-		-- current month > month(lastDate)
-		-- and current year = year(lastDate)
+		cast(to_char(current_date, 'mm') as int) > cast(to_char(lastDate, 'mm') as int) 
+		and cast(to_char(current_date, 'yyyy') as int) = cast(to_char(lastDate, 'yyyy') as int) 
 	)
 	or (
-		-- current month < month(lastDate)
-		-- and current year > year(lastDate)
+		cast(to_char(current_date, 'mm') as int) < cast(to_char(lastDate, 'mm') as int) 
+		and cast(to_char(current_date, 'yyyy') as int) > cast(to_char(lastDate, 'yyyy') as int)
 	)
-	or lastDate is null
+	or 
+	lastDate is null;
 	`
 
 	result, err := conn.Query(query)
@@ -111,7 +112,7 @@ func searchFile(bill *Bill) (bool, error) {
 			continue
 		}
 		if entries[e].Name() == strconv.Itoa(time.Now().Year())+".pdf" {
-	return true, nil
+			return true, nil
 		}
 	}
 	return false, nil
@@ -156,7 +157,7 @@ func updateReceipt() error {
 
 		log.Println("file found, updating db")
 		if err := updateFile(&(*bills)[b]); err != nil {
-				return err
+			return err
 		}
 		log.Println("update succefull")
 	}
