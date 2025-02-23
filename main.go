@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -78,9 +79,42 @@ func getBillToCheck() (*[]Bill, error) {
 	return &data, nil
 }
 
-func searchFile(bill Bill) (bool, error) {
-	// not today
+func searchFile(bill *Bill) (bool, error) {
+	baseFolder := "./bills/" + bill.Path
+	if _, err := os.Stat(baseFolder); err != nil {
+		if os.IsNotExist(err) {
+			if err = os.Mkdir(baseFolder, 0777); err != nil {
+				return false, err
+			}
+		} else {
+			return false, err
+		}
+	}
+	yearFolder := baseFolder + "/" + strconv.Itoa(time.Now().Year())
+	if _, err := os.Stat(yearFolder); err != nil {
+		if os.IsNotExist(err) {
+			if err = os.Mkdir(yearFolder, 0777); err != nil {
+				return false, err
+			}
+		} else {
+			return false, err
+		}
+	}
+
+	entries, err := os.ReadDir(yearFolder)
+	if err != nil {
+		return false, err
+	}
+
+	for e := 0; e < len(entries); e++ {
+		if entries[e].IsDir() {
+			continue
+		}
+		if entries[e].Name() == strconv.Itoa(time.Now().Year())+".pdf" {
 	return true, nil
+		}
+	}
+	return false, nil
 }
 
 func updateFile(bill Bill) error {
