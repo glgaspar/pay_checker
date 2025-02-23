@@ -12,10 +12,11 @@ import (
 )
 
 type Bill struct {
-	Id     int       `json:"id" db:"id"`         // Bill Id
-	ExpDay int       `json:"expDay" db:"expDay"` // Expiration day
-	Date   time.Time `json:"date" db:"date"`     // Time of last payment
-	Path   string    `json:"path" db:"path"`     // Where to find the files
+	Id          int        `json:"id" db:"id"`                   // Bill Id
+	Description string     `json:"description" db:"description"` // What you are paying
+	ExpDay      int        `json:"expDay" db:"expDay"`           // Expiration day
+	LastDate    *time.Time `json:"lastDate" db:"lastDate"`       // Time of last payment
+	Path        string     `json:"path" db:"path"`               // Where to find the files
 }
 
 func db() (*sql.DB, error) {
@@ -109,6 +110,7 @@ func updateReceipt() error {
 	}
 
 	for b := range *bills {
+		log.Printf("checking payment file for: %s", (*bills)[b].Description)
 		if err != nil {
 			return err
 		}
@@ -117,6 +119,7 @@ func updateReceipt() error {
 				return err
 			}
 		}
+		log.Println("update succefull")
 	}
 
 	return nil
