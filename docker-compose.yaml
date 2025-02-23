@@ -1,0 +1,7 @@
+services:
+  pay_checker:
+    container_name: pay_checker
+    restart: always
+    env_file: .env
+    build:
+        context: .
