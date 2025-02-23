@@ -148,10 +148,15 @@ func updateReceipt() error {
 		if err != nil {
 			return err
 		}
-		if file {
-			if err := updateFile((*bills)[b]); err != nil {
+
+		if !file {
+			log.Println("file not found")
+			continue
+		}
+
+		log.Println("file found, updating db")
+		if err := updateFile(&(*bills)[b]); err != nil {
 				return err
-			}
 		}
 		log.Println("update succefull")
 	}
@@ -171,6 +176,7 @@ func main() {
 	}
 
 	for {
+		log.Println("checking files")
 		if err := updateReceipt(); err != nil {
 			panic(err)
 		}
