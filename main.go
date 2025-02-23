@@ -108,8 +108,7 @@ func updateReceipt() error {
 		return err
 	}
 
-	for b := 0; b < len(*bills); b++ {
-		file, err := searchFile((*bills)[b])
+	for b := range *bills {
 		if err != nil {
 			return err
 		}
