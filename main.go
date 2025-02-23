@@ -1,12 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"os"
 	"strconv"
 	"time"
 
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
 
 type Bill struct {
@@ -16,10 +18,24 @@ type Bill struct {
 	Path   string    `json:"path" db:"path"`     // Where to find the files
 }
 
-func db() (any, error) {
-	var conn any
-	// probably gonna use postgre
-	return conn, nil
+func db() (*sql.DB, error) {
+	HOST := os.Getenv("PG_HOST")
+	PORT := os.Getenv("PG_PORT")
+	USER := os.Getenv("PG_USER")
+	PASSWORD := os.Getenv("PG_PASSWORD")
+	DBNAME := os.Getenv("PG_DBNAME")
+
+	conn, err := sql.Open("postgres",
+		fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+			HOST, PORT, USER, PASSWORD, DBNAME),
+	)
+
+	if err != nil {
+		return nil, err
+	}
+	err = conn.Ping()
+
+	return conn, err
 }
 
 func getBillToCheck() (*[]Bill, error) {
@@ -27,7 +43,7 @@ func getBillToCheck() (*[]Bill, error) {
 	if err != nil {
 		return nil, err
 	}
-	//defer close missing
+	defer conn.Close()
 
 	var data []Bill
 	query := `
@@ -44,7 +60,20 @@ func getBillToCheck() (*[]Bill, error) {
 	)
 	or lastDate is null
 	`
-	// do the select
+
+	result, err := conn.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	for result.Next() {
+		var d Bill
+		if err = result.Scan(&d.Id, &d.Description, &d.ExpDay, &d.LastDate, &d.Path); err != nil {
+			return nil, err
+		}
+		data = append(data, d)
+	}
+
 	return &data, nil
 }
 
@@ -58,7 +87,7 @@ func updateFile(bill Bill) error {
 	if err != nil {
 		return err
 	}
-	//defer close missing
+	defer conn.Close()
 
 	var data []Bill
 	query := `
@@ -66,7 +95,10 @@ func updateFile(bill Bill) error {
 	set lastDate = ?
 	where id = ? 
 	`
-	// do the update
+	if _, err := conn.Exec(query, time.Now(), (*bill).Id); err != nil {
+		return err
+	}
+
 	return nil
 }
 
