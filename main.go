@@ -92,8 +92,8 @@ func updateFile(bill Bill) error {
 	var data []Bill
 	query := `
 	update bills
-	set lastDate = ?
-	where id = ? 
+	set lastDate = $1
+	where id = $2
 	`
 	if _, err := conn.Exec(query, time.Now(), (*bill).Id); err != nil {
 		return err
